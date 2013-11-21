@@ -5,7 +5,8 @@ define(function(require, exports, module) {
 		  "jquery": "jquery/jquery.js",
 		}
 	});
-
 	var Game = require('game');
-	Game.init();
+	var game = new Game();
+	game.initTable()
+	game.startGame();
 });
