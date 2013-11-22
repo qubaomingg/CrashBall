@@ -1,4 +1,4 @@
-define(function(require, exports, module) {
+define(function(require) {
 	seajs.config({
 		base: "../js",
 		alias: {
@@ -7,6 +7,6 @@ define(function(require, exports, module) {
 	});
 	var Game = require('game');
 	var game = new Game();
-	game.initTable()
+	game.initTable();
 	game.startGame();
 });

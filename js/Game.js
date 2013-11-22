@@ -12,7 +12,7 @@ define(function(require, exports, module) {
         this.length -= 1
     }
 
-    var $ = require('js/jquery');
+    var $ = require('jquery/jquery');
     var util = require('util');
     var H = 480, // 容器宽
         THICKNESS = 32,// 边缘厚度
@@ -33,10 +33,12 @@ define(function(require, exports, module) {
         this.movingBalls = [];
         this.cueBall = null;
         this.timer = 0;
-    };
+    }
+    module.exports = Game;
     Game.prototype = {
 
         initTable: function() {
+            console.log('init');
             this.table = $("#table");
             var dotWrapDiv = document.createElement("div"),
             guideBallDiv = document.createElement("div");
@@ -328,6 +330,6 @@ define(function(require, exports, module) {
             }
         }
     }
-    module.exports = Game;
+    
 
-    });
+});
