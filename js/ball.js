@@ -12,7 +12,7 @@ define(function(require, exports, module) {
         this.angle = 0; 
         this.v = 0; // 不包含方向
         this.emmiter = 0;
-        this.showPredict = true;
+        this.showPredict = false;
         util.setBallPos(this.elem,x,y, this);
         return this;
     }
