@@ -4,6 +4,14 @@ define(function(require, exports, module) {
 
 
   module.exports = {
+    H: 480, // 容器宽
+    R: 12,
+    W: 736,
+    RATE: 1000, // 刷新频率
+    F: 0.02, // 摩擦力
+    LOSS: 0.3, // 碰撞速度损失
+    TOTALR: 15,
+    speed: 15,
     setStyle: function() {
       if(arguments.length == 2 &&  typeof arguments[1] == "object") {
         for(var key in arguments[1]) {
@@ -19,24 +27,10 @@ define(function(require, exports, module) {
       pos.push(obj.position().top - 17);
       return pos;
     }
-    /*getElemPos: function (target,reference) {
-      // 目标元素在reference中的相对位置
-      reference = reference || document; // 默认值为document
-      var left = 0,top = 0;
-      return getPos(target);
-      function getPos(target) {
-        if(target != reference) {
-          left += target.offsetLeft;
-          top += target.offsetTop;
-          return getPos(target.parentNode);
-        } else {
-          return [left,top];
-        }
-      }
-    },*/
     ,
     setBallPos: function(ball, x, y, context) {
-        if (ball.constructor == context) { //如果ball是Ball构造函数这个对象
+        if (ball.constructor == context) { 
+            //如果ball是Ball构造函数这个对象
             ball.x = x;
             ball.y = y;
             ball = ball.elem;
