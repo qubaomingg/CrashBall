@@ -5,7 +5,7 @@ define(function(require, exports, module) {
     function Ball(type, x, y, parent) {
         var div = document.createElement("div");
         div.className = type + " ball";
-        this.elem = $(div).appendTo($(parent));,
+        this.elem = $(div).appendTo($(parent));
         this.type = type;
         this.x = x; //位置
         this.y = y;
