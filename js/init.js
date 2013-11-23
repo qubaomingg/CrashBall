@@ -1,5 +1,5 @@
 define(function(require, exports, module) {
-	
+	var $ = require('jquery');
 	var util = require('util');
 	var Game = require('Game');
 	var Ball = require('ball');
@@ -161,4 +161,18 @@ define(function(require, exports, module) {
 
 	game.initTable();
 	game.startGame();
+
+    (function() {
+        $('.showPredict').click(function() {
+            for(var i in game.balls) {
+                game.balls[i].showPredict = true;
+            }
+            
+        });
+        $('.hidePredict').click(function() {
+            for(var i in game.balls) {
+                game.balls[i].showPredict = false;
+            }
+        });
+    })()
 });
