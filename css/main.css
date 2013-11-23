@@ -6,13 +6,11 @@ h1 .sub {vertical-align:super; color:red; font-size:9px; }
 #table {position:relative; width:800px; margin:20px auto 10px; height:544px; background: #000;border: 1px solid #fff;}
 .ball {position:absolute; width:30px; height:30px}
 #dotWrap {position:absolute; z-index:2; left:32px; top:32px; width:736px; height:480px;}
-.guide {z-index:3; background-image:url(images/dashed_ball.png); _background:none; _filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true', sizingMethod='scale', src="images/dashed_ball.png"); background-repeat:no-repeat}
-.target {left:500px; top:250px; border: 1px solid #fff;border-radius: 10px; width: 20px;height:20px; _background:none; _filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true', sizingMethod='scale', src="images/yellow_ball.png"); background-repeat:no-repeat}
-.cue {background-image:url(images/white_ball.png); _background:none; _filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled='true', sizingMethod='scale', src="images/white_ball.png"); background-repeat:no-repeat}
+.guide {z-index:3; width: 22px; height:22px; border-radius: 11px; border: 1px solid #fff;}
+.target {left:500px; top:250px; border: 1px solid #fff;border-radius: 10px; width: 20px;height:20px;}
+.cue {width: 22px; height: 22px; border-radius: 11px; border: 1px solid #fff;background-repeat:no-repeat}
 .bot {position:relative; width:800px; margin:10px auto 10px; height:70px}
-.ctrl {position:absolute; top:0; right:0; width:200px; height:80px; background:url(images/bg_controler.png) no-repeat}
-#force {position:absolute; left:0; top:18px; width:75px; height:20px; background:url(images/force_conver.png) no-repeat}
-#shootPos {position:absolute; top:0; right:14px; width:52px; height:52px}
-#dot {position:absolute; top:22px; left:22px; width:8px; height:8px; background:url(images/bule_dot.png) no-repeat; font-size:1px}
+
+#dot {position:absolute; top:22px; left:22px; width:8px; height:8px; font-size:1px}
 #scoreBoard {position:absolute; z-index:3; top:230px; left:346px; font-size:50px; color:white; filter:alpha(opacity=0); -moz-opacity:0; opacity:0}
 #tips {padding:15px 0 0 20px; text-align:left; color:red; font-size:12px}

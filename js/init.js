@@ -1,12 +1,9 @@
-define(function(require) {
-	seajs.config({
-		base: "../js",
-		alias: {
-		  "jquery": "jquery/jquery.js",
-		}
-	});
-	var Game = require('game');
-	var game = new Game();
+define(function(require, exports, module) {
+	
+	console.log('init');
+
+	var Game = require('Game');
+	var game = new Game("#table");
 	game.initTable();
 	game.startGame();
 });

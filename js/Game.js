@@ -12,8 +12,11 @@ define(function(require, exports, module) {
         this.length -= 1
     }
 
-    var $ = require('jquery/jquery');
+    var $ = require('jquery');
+    var Ball = require('ball');
+
     var util = require('util');
+
     var H = 480, // 容器宽
         THICKNESS = 32,// 边缘厚度
         R = 12,
@@ -21,15 +24,15 @@ define(function(require, exports, module) {
         RATE = 100, // 刷新频率
         F = 0.02, // 摩擦力
         LOSS = 0.3, // 碰撞速度损失
+        TOTALR = 15,
         speed = 15;
 
-    function Game() {
+    function Game(parent) {
         this.dotWrap = null; // 参考线
         this.guideBall = null; // 参考球
-        this.table = null;
+        this.table = $(parent);
         this.balls = [];
-        this.rollRight = 0;
-        this.rollUp = 0;
+        
         this.movingBalls = [];
         this.cueBall = null;
         this.timer = 0;
@@ -38,47 +41,54 @@ define(function(require, exports, module) {
     Game.prototype = {
 
         initTable: function() {
-            console.log('init');
-            this.table = $("#table");
             var dotWrapDiv = document.createElement("div"),
-            guideBallDiv = document.createElement("div");
+                guideBallDiv = document.createElement("div");
             dotWrapDiv.id = "dotWrap"; // 球运动区域
             guideBallDiv.className = "guide ball"; // 瞄准的虚线球
             util.setStyle(guideBallDiv, "display", "none"); // 瞄准球添加样式
-            this.dotWrap = this.table.appendChild(dotWrapDiv); //将创建的dom添加到页面中,并且返回新的子节点
-            this.guideBall = this.table.appendChild(guideBallDiv);
+            this.dotWrap = $(dotWrapDiv).appendTo(this.table);
+             
+            this.guideBall = $(guideBallDiv).appendTo(this.table);
         },
+
         startGame: function() {
+            var _this = this;
             this.initBall(); // 初始化所有的球
-            this.table.bind("mousemove", this.dragCueBall); //绑定鼠标移动事件，给球设置坐标
-            this.table.bind("mouseup", this.setCueBall); //移除table上绑定事件并且开始执行startShot()函数
+            $(this.table).bind("mousemove", dragCueBall); //绑定鼠标移动事件，给球设置坐标
+            $(this.table).bind("mouseup", setCueBall); //移除table上绑定事件并且开始执行startShot()函数
+
+            function dragCueBall(e) {
+                var toX, toY;
+                e = e || event;
+                toX = e.clientX - _this.table.position().left - THICKNESS,
+                toY = e.clientY - _this.table.position().top - THICKNESS;
+                //toX,toY在桌面上的坐标
+                toX = toX >= R ? toX: R; //x坐标小于球的半径，则球靠近左边台子
+                toX = toX <= 170 ? toX: 170; //x坐标不能超过球线
+                toY = toY >= R ? toY: R; //y坐标小于半径，则靠近上边台子
+                toY = toY <= H - R ? toY: H - R; //坐标超出下面台子，则球靠近下边台子
+                _this.setBallPos(_this.cueBall, toX, toY); //给目球设置坐标
+            }
+            function setCueBall() {
+                _this.table.unbind("mousemove", dragCueBall);
+                _this.table.unbind("mouseup", arguments.callee);
+                _this.startShot();
+            }
         },
         // 初始化母球和目标球，并且放入数组并且显示在桌面上
         initBall: function() {
             // 添加母球
-            this.cueBall = new Ball("cue", 170, H / 2);
-
+            this.cueBall = new Ball("cue", 170, H / 2, '#table');
             this.balls.push(this.cueBall);
 
             for (var i = 0; i < 5; i++) {
                 for (var j = 0; j <= i; j++) {
-                    var ball = new Ball("target", 520 + i * 2 * R, H / 2 - R * i + j * 2 * R);
+                    var ball = new Ball("target", 520 + i * 2 * R, H / 2 - R * i + j * 2 * R, '#table');
                     this.balls.push(ball);
                 }
             }
         },
-        dragCueBall: function(e) {
-            var toX, toY;
-            e = e || event;
-            toX = e.clientX - this.table.offsetLeft - THICKNESS,
-            toY = e.clientY - this.table.offsetTop - THICKNESS;
-            //toX,toY在桌面上的坐标
-            toX = toX >= R ? toX: R; //x坐标小于球的半径，则球靠近左边台子
-            toX = toX <= 170 ? toX: 170; //x坐标不能超过球线
-            toY = toY >= R ? toY: R; //y坐标小于半径，则靠近上边台子
-            toY = toY <= H - R ? toY: H - R; //坐标超出下面台子，则球靠近下边台子
-            this.setBallPos(this.cueBall, toX, toY); //给目球设置坐标
-        },
+        
         setBallPos: function(ball, x, y) {
             if (ball.constructor == Ball) { //如果ball是Ball构造函数这个对象
                 ball.x = x;
@@ -87,43 +97,61 @@ define(function(require, exports, module) {
             }
             util.setPos(ball, x + THICKNESS - TOTALR, y + THICKNESS - TOTALR);
         },
-        setCueBall: function() {
-            this.table.unbind("mousemove", this.dragCueBall);
-            this.table.unbind("mouseup", this.setCueBall);
-            this.startShot();
-        },
+        
         startShot: function() {
-            $(cueBall.elem).show(); //显示母球
-            this.table.bind("mousemove", this.showGuide); //移动是添加事件，显示瞄准球和参考线
-            this.table.bind("mouseup", this.shotCueBall); //放开鼠标绑定事件
-        },
-        showGuide: function(e) {
-            var fromX, fromY, toX, toY;
-            e = e || event;
-            toX = e.clientX - this.table.offsetLeft - THICKNESS,
-            toY = e.clientY - this.table.offsetTop - THICKNESS;
-            //鼠标在table上面的坐标
-            util.setBallPos(this.guideBall, toX, toY); //显示瞄准求的位置
-            $(this.dotWrap).show(); //显示球运动区域,在css中将#dotWrap设置一个背景色background:pink;会很好看的这个运动区域的作用
-            $(this.guideBall).show(); //显示瞄准球
-            drawLine(); //画参考线
             var _this = this;
-            //参考线
-            function drawLine() {
-                var dotNum = 16,
-                //数字越大，参考线约密集
-                pos = util.getBallPos(this.cueBall.elem); //获得母球在table上面的坐标
-                this.dotWrap.innerHTML = "";
-                fromX = pos[0];
-                fromY = pos[1]; //fromX和fromY是母球的坐标
-                var partX = (toX - fromX) / dotNum,
-                //（鼠标的横坐标-母球的横坐标）/16
-                partY = (toY - fromY) / dotNum; //（鼠标的纵坐标-母球的纵坐标）/16
-                for (var i = 1; i < dotNum; i++) { //设置构成参考线的小点
-                    var x = fromX + partX * i,
-                    y = fromY + partY * i;
-                    _this.drawDot(this.dotWrap, x, y); //绘制参考点到球运动区域
+            $(this.cueBall.elem).show(); //显示母球
+            this.table.bind("mousemove", showGuide); //移动是添加事件，显示瞄准球和参考线
+            this.table.bind("mouseup", shotCueBall); //放开鼠标绑定事件
+            function showGuide(e) {
+                var fromX, fromY, toX, toY;
+                e = e || event;
+                toX = e.clientX - _this.table.position().left - THICKNESS,
+                toY = e.clientY - _this.table.position().top - THICKNESS;
+                //鼠标在table上面的坐标
+                util.setBallPos(_this.guideBall, toX, toY); //显示瞄准求的位置
+                $(_this.dotWrap).show(); //显示球运动区域,在css中将#dotWrap设置一个背景色background:pink;会很好看的这个运动区域的作用
+                $(_this.guideBall).show(); //显示瞄准球
+                drawLine(); //画参考线
+                //参考线
+                function drawLine() {
+                    var dotNum = 16,
+                    //数字越大，参考线约密集
+                    pos = util.getBallPos(_this.cueBall.elem); //获得母球在table上面的坐标
+
+                    $(_this.dotWrap).empty();
+                    fromX = pos[0];
+                    fromY = pos[1]; //fromX和fromY是母球的坐标
+                    var partX = (toX - fromX) / dotNum,
+                    //（鼠标的横坐标-母球的横坐标）/16
+                    partY = (toY - fromY) / dotNum; //（鼠标的纵坐标-母球的纵坐标）/16
+                    for (var i = 1; i < dotNum; i++) { //设置构成参考线的小点
+                        var x = fromX + partX * i,
+                        y = fromY + partY * i;
+                        _this.drawDot(_this.dotWrap, x, y); //绘制参考点到球运动区域
+                    }
                 }
+            }
+
+            function shotCueBall() {
+                _this.table.unbind("mousemove",showGuide);//移除移动鼠标显示瞄准球事件
+                _this.table.unbind("mouseup",shotCueBall);//此处松开鼠标事件
+                var formPos = util.getBallPos(_this.cueBall.elem),
+                //母球在table上的坐标
+                toPos = util.getBallPos(_this.guideBall),
+                //瞄准球在table上的坐标
+                angle = Math.atan2(toPos[0] - formPos[0], toPos[1] - formPos[1]);
+
+                $(_this.dotWrap).hide(); //隐藏球运动区域，区域上面的参考线同时隐藏
+                $(_this.guideBall).hide(); //隐藏瞄准球
+                _this.cueBall.v = speed; //设置母球的速度
+                _this.cueBall.angle = angle; //设置母球的运动角度
+                _this.movingBalls.push(_this.cueBall); //将母球添加到移动球数组
+                $(_this.dotWrap).hide();//隐藏球运动区域，区域上面的参考线同时隐藏
+                $(_this.guideBall).hide();//隐藏瞄准球                
+                _this.timer = window.setInterval(function() {
+                    return _this.roll(_this);
+                }, 1000 / RATE);
             }
         },
         drawDot: function(wrap, x, y) {
@@ -136,50 +164,27 @@ define(function(require, exports, module) {
                 background: "white"
             });
             util.setPos(elem, x, y); //为新创建的对象添加坐标
-            wrap.appendChild(elem);
+            wrap.append(elem);
         },
-
-        shotCueBall: function() {
-            var dotDisX = 0,
-            //圆盘中小蓝点在圆盘中的x轴距离-22
-            dotDisY = 0,
-            //小蓝点y轴-22
-            dotDis = Math.sqrt(dotDisX * dotDisX + dotDisY * dotDisY),
-            //开根号，dotDis举例圆盘中心的举例
-            dotAngle = Math.atan2(dotDisX, dotDisY); //算出角度
-            this.rollRight = Math.round(dotDis * Math.sin(dotAngle)) / 5; //舍入为最接近的整数
-            this.rollUp = -Math.round(dotDis * Math.cos(dotAngle)) / 5;
-
-            var formPos = util.getBallPos(this.cueBall.elem),
-            //母球在table上的坐标
-            toPos = util.getBallPos(this.guideBall),
-            //瞄准球在table上的坐标
-            angle = Math.atan2(toPos[0] - formPos[0], toPos[1] - formPos[1]);
-
-            $(this.dotWrap).hide(); //隐藏球运动区域，区域上面的参考线同时隐藏
-            $(this.guideBall).hide(); //隐藏瞄准球
-            this.cueBall.v = speed; //设置母球的速度
-            this.cueBall.angle = angle; //设置母球的运动角度
-            this.movingBalls.push(this.cueBall); //将母球添加到移动球数组
-            this.timer = window.setInterval(this.roll, 1000 / RATE);
-        },
-        roll: function() {
+        roll: function(that) {
             //处理球停止运动的情况
-            if (this.movingBalls.length <= 0) { //如果movingBalls数组中没有球，球都停止移动了
-                window.clearInterval(this.timer); //停止运行不断运行的roll函数
+            if (that.movingBalls.length <= 0) { //如果movingBalls数组中没有球，球都停止移动了
+                window.clearInterval(that.timer); //停止运行不断运行的roll函数
+                that.startShot();
             }
             //处理移动中的球
-            for (var i = 0; i < this.movingBalls.length; i++) {
+            for (var i = 0; i < that.movingBalls.length; i++) {
                 //记录移动中的球的sin和cos
-                var ball = this.movingBalls[i],
+                var ball = that.movingBalls[i],
                 sin = Math.sin(ball.angle),
                 cos = Math.cos(ball.angle);
                 //速度在每次setInterval中不断递减
                 ball.v -= F; //ball.v母球的速度,F = 0.02, 摩擦力,每次执行roll()，速度减少0.02
                 //移除静止的小球
+
                 if (Math.round(ball.v) === 0) { //如果速度接近0
                     ball.v = 0;
-                    this.movingBalls.remove(i); //将停止的球移除移动球数组
+                    that.movingBalls.remove(i); //将停止的球移除移动球数组
                     continue; //从新执行循环
                 }
                 //运动的球每次刷新后的坐标
@@ -200,14 +205,7 @@ define(function(require, exports, module) {
                     if (ball.x > W - R) ball.x = W - R; //贴着右边缘
                     //母球加塞（这里我还特意查了什么叫加塞，个人通俗的理解，加塞就是打的旋球，这里处理的情况就是母球选择碰到边缘后不仅会角度反向，而且反向后会有一个弧度）
                     if (ball.type == "cue") { //如果碰撞的球是母球
-                        if (ball.angle > 0) {
-                            vy -= this.rollRight; //小蓝点在中心的话，rollRight==0
-                        } else {
-                            vy += this.rollRight; //会改变y轴每次刷新移动的距离
-                        }
-                        vx += this.rollUp; //改变x轴每次刷新移动的距离
-                        this.rollUp *= 0.2; //每一次碰撞加塞的rollUp，rollRight会衰减
-                        this.rollRight *= 0.2;
+                        
                         ball.v = Math.sqrt(vx * vx + vy * vy); //ball.v移动的速度
                         ball.angle = Math.atan2(vx, vy); //移动的角度
                     }
@@ -223,21 +221,14 @@ define(function(require, exports, module) {
                     if (ball.y > H - R) ball.y = H - R; //贴着上边缘 
                     //母球加塞
                     if (ball.type == "cue") {
-                        if (Math.abs(ball.angle) < Math.PI / 2) {
-                            vx += this.rollRight; //这里加塞后对x轴产生影响
-                        } else {
-                            vx -= this.rollRight;
-                        }
-                        vy += this.rollUp;
-                        this.rollUp *= 0.2; //碰撞衰减
-                        this.rollRight *= 0.2;
+                      
                         ball.v = Math.sqrt(vx * vx + vy * vy);
                         ball.angle = Math.atan2(vx, vy);
                     }
                 }
                 //小球碰撞
-                for (var j = 0; j < this.balls.length; j++) { //进入袋中的球从balls中已经删除，这里遍历存在的球
-                    var obj = this.balls[j];
+                for (var j = 0; j < that.balls.length; j++) { //进入袋中的球从balls中已经删除，这里遍历存在的球
+                    var obj = that.balls[j];
                     if (obj == ball) { //如果这个球是自身，则tui出当前循环再次继续遍历
                         continue;
                     }
@@ -251,7 +242,7 @@ define(function(require, exports, module) {
                         if (dis <= gap) {
                             //如果被撞击的球是静止的，则添加到数组movingBalls
                             if (Math.round(obj.v) == 0) {
-                                this.movingBalls.push(obj);
+                                that.movingBalls.push(obj);
                             }
 
                             //-------------------下面部分是一系列复制的碰撞角度运算-----------------原来代码中注释
@@ -289,12 +280,7 @@ define(function(require, exports, module) {
                             vx1 = vx2;
                             vx2 = plusVx + vx1;
 
-                            //母球加塞
-                            if (ball.type == "cue") {
-                                vx1 += this.rollUp;
-                                this.rollUp *= 0.2;
-                            }
-
+                           
                             x1 += vx1;
                             x2 += vx2;
 
@@ -326,7 +312,7 @@ define(function(require, exports, module) {
                         }
                     }
                 }
-                util.setBallPos(ball, ball.x, ball.y); //每次setInterval后设置移动球的位置
+                util.setBallPos(ball, ball.x, ball.y, Ball); //每次setInterval后设置移动球的位置
             }
         }
     }

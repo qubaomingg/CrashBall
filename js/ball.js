@@ -1,38 +1,18 @@
 define(function(require, exports, module) {
-
     var $ = require('jquery');
+    var util = require('util');
 
-    var CANVAS_HEIGHT = 500;
-    var CANVAS_WIDTH = 900;
-
-    var BALL_WIDTH = 60;
-    var BALL_HEIGHT = 60;
-    var LUCKY_BALL_WIDTH = 200;
-    var LUCKY_BALL_HEIGHT = 200;
-    var MAX_ZINDEX = 100;
-
-    var DURATION_MIN = 100;
-    var DURATION_MAX = 500;
-    var ZOOM_DURATION = 500;
-
-    function Ball(name, options) {
-        this.name = name;
-        this.options = options || {};
-
-        this.el = null;
-        this.width = 0;
-        this.height = 0;
-        this.left = 0;
-        this.top = 0;
-        this.x = 0;
-        this.y = 0;
-
-        this.moving = false;
-        this.lucky = false;
-
-        this.createEl();
-        this.move();
+    function Ball(type, x, y, parent) {
+        var div = document.createElement("div");
+        div.className = type + " ball";
+        this.elem = $(div).appendTo($(parent));,
+        this.type = type;
+        this.x = x; //位置
+        this.y = y;
+        this.angle = 0; //角度
+        this.v = 0; //速度(不包含方向)
+        util.setBallPos(this.elem,x,y, this);//为球设置坐标
+        return this;
     }
-
     module.exports = Ball;
 });
