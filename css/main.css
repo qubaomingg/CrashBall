@@ -16,4 +16,10 @@ h1 .sub {vertical-align:super; color:red; font-size:9px; }
 #tips {padding:15px 0 0 20px; text-align:left; color:red; font-size:12px}
 #predict {position: relative;width: 100%; height: 100px;}
 .control {width: 800px; margin: 40px auto 0; text-align: left;}
-.predict {padding: 5px;}
+.predict{  
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  margin-right: 8px;
+  }
