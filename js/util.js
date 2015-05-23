@@ -4,12 +4,12 @@ define(function(require, exports, module) {
 
 
   module.exports = {
-    H: 480, // 容器宽
+    H: 480,
     R: 12,
     W: 736,
-    RATE: 1000, // 刷新频率
-    F: 0.02, // 摩擦力
-    LOSS: 0.3, // 碰撞速度损失
+    RATE: 1000,
+    F: 0.02,
+    LOSS: 0.3,
     TOTALR: 15,
     speed: 15,
     setStyle: function() {
@@ -29,7 +29,7 @@ define(function(require, exports, module) {
     }
     ,
     setBallPos: function(ball, x, y, context) {
-        if (ball.constructor == context) { 
+        if (ball.constructor == context) {
             //如果ball是Ball构造函数这个对象
             ball.x = x;
             ball.y = y;
@@ -40,7 +40,7 @@ define(function(require, exports, module) {
     },
     setPos: function(obj,x,y) {
       $(obj).css('left', x + "px");
-      $(obj).css('top', y + "px"); 
+      $(obj).css('top', y + "px");
     }
   };
 });
