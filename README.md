@@ -24,6 +24,6 @@
 
 
 
-## style
+## Style
 
 ![img](./img/show.png)
